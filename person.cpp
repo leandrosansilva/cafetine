@@ -5,6 +5,7 @@
 #include <memory>
 #include <assert.h>
 
+// Non-copyable but moveable, because of the unique_ptr
 struct Person::PersonImpl
 {
   int _age;
@@ -20,6 +21,8 @@ struct Person::PersonImpl
   {
     return _age;
   }
+  
+  PersonImpl& operator=(PersonImpl&) = delete;
 
   PersonImpl(PersonImpl&&) = default;
 
@@ -35,15 +38,15 @@ struct Person::PersonImpl
   }
 };
 
-Person::Person()
+Person::Person(const char* name, int age)
 {
   assert(!impl);
-  cafetl::Alloc<Impl>::alloc(impl, "Leandro", 30);
+  cafetine::Alloc<Impl>::alloc(impl, name, age);
   assert(impl);
 }
 
 Person::Person(Person&& other):
-  impl(cafetl::Alloc<Impl>::move(other.impl))
+  impl(cafetine::Alloc<Impl>::move(other.impl))
 {
 }
 

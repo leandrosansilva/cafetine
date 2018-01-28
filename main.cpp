@@ -6,14 +6,14 @@ int main(int, char**)
 {
   auto result = int{0};
 
-  std::cout << "sizeof person: " << sizeof(Person) << "\n";
-
   {
-    auto p = Person{};
+    auto p = Person{"Leandro", 30};
 
     std::cout << p.name() << '\n';
 
     auto p1 = std::move(p);
+    
+    // p becomes invalid by the move
 
     std::cout << p1.name() << '\n';
 

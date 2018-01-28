@@ -1,16 +1,19 @@
 #pragma once
 
-#include "cafetl.h"
+#include "cafetine.h"
 
 struct Person
 {
   struct PersonImpl;
 
-  using Impl = cafetl::Pimp<PersonImpl, 16, alignof(std::uint64_t)>;
+  // Allocate 16 bytes, 4-byte aligned in the Person Object to store
+  // the implementation
+  using Impl = cafetine::Pimpl<PersonImpl, 16, alignof(std::uint32_t)>;
 
+  // impl looks like a pointer, but never does dynamic memory allocation
   Impl impl;
 
-  Person();
+  Person(const char* name, int age);
 
   Person(Person&&);
 
