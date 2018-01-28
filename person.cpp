@@ -1,7 +1,10 @@
-#include "pimpme.h"
 #include "person.h"
+#include <iostream>
 
-extern void some_function();
+void some_function()
+{
+  std::cout << "Deleted PersonImpl\n";
+}
 
 struct Person::PersonImpl
 {
@@ -30,6 +33,12 @@ Person::Person():
 {
   impl->_age = 34;
   impl->_name = "Leandro";
+}
+
+Person::Person(Person&& other):
+  pimp(PimpMeAlloc<Impl>::move(other.pimp)),
+  impl(pimp.get())
+{
 }
 
 const char* Person::name() const

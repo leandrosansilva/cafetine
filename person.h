@@ -13,6 +13,8 @@ struct Person
 
   Person();
 
+  Person(Person&&);
+
   const char* name() const;
 
   int age() const;

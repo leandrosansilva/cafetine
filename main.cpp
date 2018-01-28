@@ -1,10 +1,17 @@
 #include "person.h"
+#include <utility>
 
 int main(int, char**)
 {
-  const auto p = Person{};
+  auto result = int{0};
 
-  const auto p1 = p;
+  {
+    auto p = Person{};
 
-  return p.age();
+    auto p1 = std::move(p);
+
+    result = p.age();
+  }
+
+  return result;
 }
