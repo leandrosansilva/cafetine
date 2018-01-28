@@ -1,15 +1,14 @@
 #pragma once
 
 #include "pimpme.h"
-#include <string>
 
 struct Person
 {
   struct PersonImpl;
-  using Impl = PimpMe<PersonImpl, 16, alignof(std::uint32_t)>;
 
-  Impl pimp;
-  Impl::ptr impl;
+  using Impl = PimpMe<PersonImpl, 16, alignof(std::uint64_t)>;
+
+  Impl impl;
 
   Person();
 

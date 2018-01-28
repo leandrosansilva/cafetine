@@ -1,19 +1,18 @@
 #include "person.h"
-#include <iostream>
 
-void some_function()
-{
-  std::cout << "Deleted PersonImpl\n";
-}
+#include <vector>
+#include <iostream>
+#include <memory>
 
 struct Person::PersonImpl
 {
-  const char* _name;
   int _age;
+
+  std::unique_ptr<std::string> _u;
 
   const char* name() const
   {
-    return _name;
+    return _u->c_str();
   }
 
   int age() const
@@ -21,23 +20,28 @@ struct Person::PersonImpl
     return _age;
   }
 
+  PersonImpl(PersonImpl&&) = default;
+
+  PersonImpl(const std::string& name, int age):
+    _age(age),
+    _u(std::unique_ptr<std::string>(new std::string(name)))
+  {
+  }
+
   ~PersonImpl()
   {
-    some_function();
+    std::cout << "Deleted PersonImpl\n";
   }
 };
 
 Person::Person():
-  pimp(PimpMeAlloc<Impl>::pimp()),
-  impl(PimpMeAlloc<Impl>::alloc(pimp))
+  impl(PimpMeAlloc<Impl>::pimp())
 {
-  impl->_age = 34;
-  impl->_name = "Leandro";
+  PimpMeAlloc<Impl>::alloc(impl, "Leandro", 30);
 }
 
 Person::Person(Person&& other):
-  pimp(PimpMeAlloc<Impl>::move(other.pimp)),
-  impl(pimp.get())
+  impl(PimpMeAlloc<Impl>::move(other.impl))
 {
 }
 

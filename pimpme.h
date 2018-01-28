@@ -16,23 +16,23 @@ struct PimpMe
   using storage_type_ptr = typename std::add_pointer<storage_type>::type;
   using destructor_type = typename std::add_pointer<void(storage_type_ptr&&)>::type;
 
-  destructor_type destructor;
   storage_type storage;
+  destructor_type destructor;
 
-  PimpMe() = default;
+  PimpMe() = delete;
   PimpMe(const PimpMe&) = delete;
   PimpMe& operator=(const PimpMe&) = delete;
 
-  PimpMe(PimpMe&& other): storage(std::move(other.storage))
+  PimpMe(PimpMe&& other) = default;
+  
+  explicit PimpMe(const storage_type& s, destructor_type d):
+    storage(s),
+    destructor(d)
   {
   }
 
-  template<typename S, typename D>
-  PimpMe(S s, D d): destructor(d), storage(s)
-  {
-  }
-
-  explicit PimpMe(destructor_type&& destructor): destructor(std::move(destructor))
+  explicit PimpMe(destructor_type&& destructor):
+    destructor(std::move(destructor))
   {
   }
 
@@ -41,10 +41,25 @@ struct PimpMe
     destructor(&storage);
   }
 
-  ptr get() const
+  ptr get() const noexcept
   {
     const auto storage_ptr = storage_type_ptr(&storage);
     return reinterpret_cast<ptr>(storage_ptr);
+  }
+
+  ptr operator->() const noexcept
+  {
+    return get();
+  }
+
+  operator bool() const noexcept
+  {
+    return get() != nullptr;
+  }
+
+  typename std::add_lvalue_reference<T>::type operator*() const
+  {
+    return *get();
   }
 };
 
@@ -74,7 +89,7 @@ struct PimpMeAlloc
     // FIXME: remove copy&pasted code with a static member
     const auto destructor = [](storage_type_ptr&& storage){ reinterpret_cast<ptr>(storage)->~type(); };
 
-    const auto payload_ptr = reinterpret_cast<ptr>(&(impl.storage));
+    const auto payload_ptr = impl.get();
 
     auto storage = storage_type{};
 
