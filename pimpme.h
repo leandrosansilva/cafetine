@@ -84,11 +84,9 @@ struct PimpMeAlloc
     // FIXME: remove copy&pasted code with a static member
     const auto destructor = [](storage_type_ptr&& storage){ reinterpret_cast<ptr>(storage)->~type(); };
 
-    const auto payload_ptr = impl.get();
-
     auto storage = storage_type{};
 
-    new(&(storage)) typename Impl::type(std::move(*payload_ptr));
+    new(&(storage)) typename Impl::type(std::move(*impl.get()));
 
     impl.destructor = [](storage_type_ptr&&){};
 
