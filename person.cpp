@@ -38,12 +38,12 @@ struct Person::PersonImpl
 Person::Person()
 {
   assert(!impl);
-  PimpMeAlloc<Impl>::alloc(impl, "Leandro", 30);
+  cafetl::Alloc<Impl>::alloc(impl, "Leandro", 30);
   assert(impl);
 }
 
 Person::Person(Person&& other):
-  impl(PimpMeAlloc<Impl>::move(other.impl))
+  impl(cafetl::Alloc<Impl>::move(other.impl))
 {
 }
 

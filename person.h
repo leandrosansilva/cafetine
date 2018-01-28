@@ -6,7 +6,7 @@ struct Person
 {
   struct PersonImpl;
 
-  using Impl = PimpMe<PersonImpl, 16, alignof(std::uint64_t)>;
+  using Impl = cafetl::Pimp<PersonImpl, 16, alignof(std::uint64_t)>;
 
   Impl impl;
 

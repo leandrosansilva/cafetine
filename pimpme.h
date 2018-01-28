@@ -4,8 +4,10 @@
 #include <utility>
 #include <cstdint>
 
+namespace cafetl {
+
 template<typename T, std::size_t Size, std::size_t Align>
-struct PimpMe
+struct Pimp
 {
   constexpr static std::size_t size = Size;
   constexpr static std::size_t align = Align;
@@ -21,23 +23,23 @@ struct PimpMe
   storage_type storage;
   destructor_type destructor;
 
-  PimpMe(const PimpMe&) = delete;
-  PimpMe& operator=(const PimpMe&) = delete;
+  Pimp(const Pimp&) = delete;
+  Pimp& operator=(const Pimp&) = delete;
 
-  PimpMe(PimpMe&& other) = default;
+  Pimp(Pimp&& other) = default;
 
-  explicit PimpMe():
+  explicit Pimp():
     destructor(nullptr)
   {
   }
   
-  explicit PimpMe(const storage_type& s, destructor_type d):
+  explicit Pimp(const storage_type& s, destructor_type d):
     storage(s),
     destructor(d)
   {
   }
 
-  ~PimpMe()
+  ~Pimp()
   {
     if (destructor) {
       destructor(&storage);
@@ -67,11 +69,11 @@ struct PimpMe
 };
 
 template<typename T, std::size_t Size, std::size_t Align>
-typename PimpMe<T, Size, Align>::destructor_type PimpMe<T, Size, Align>::default_destructor
+typename Pimp<T, Size, Align>::destructor_type Pimp<T, Size, Align>::default_destructor
   = [](storage_type_ptr&& storage){ reinterpret_cast<ptr>(storage)->~type(); };
 
 template<typename Impl>
-struct PimpMeAlloc
+struct Alloc
 {
   using type = typename Impl::type;
   using ptr = typename Impl::ptr;
@@ -91,10 +93,12 @@ struct PimpMeAlloc
   {
     auto storage = storage_type{};
 
-    new(&(storage)) typename Impl::type(std::move(*impl.get()));
+    new(&storage) typename Impl::type(std::move(*impl.get()));
 
     impl.destructor = nullptr;
 
     return Impl{storage, Impl::default_destructor};
   }
 };
+
+}
