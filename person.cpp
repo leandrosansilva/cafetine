@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <memory>
+#include <assert.h>
 
 struct Person::PersonImpl
 {
@@ -34,10 +35,11 @@ struct Person::PersonImpl
   }
 };
 
-Person::Person():
-  impl(PimpMeAlloc<Impl>::pimp())
+Person::Person()
 {
+  assert(!impl);
   PimpMeAlloc<Impl>::alloc(impl, "Leandro", 30);
+  assert(impl);
 }
 
 Person::Person(Person&& other):

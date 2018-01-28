@@ -19,20 +19,19 @@ struct PimpMe
   storage_type storage;
   destructor_type destructor;
 
-  PimpMe() = delete;
   PimpMe(const PimpMe&) = delete;
   PimpMe& operator=(const PimpMe&) = delete;
 
   PimpMe(PimpMe&& other) = default;
+
+  explicit PimpMe():
+    destructor(nullptr)
+  {
+  }
   
   explicit PimpMe(const storage_type& s, destructor_type d):
     storage(s),
     destructor(d)
-  {
-  }
-
-  explicit PimpMe(destructor_type&& destructor):
-    destructor(std::move(destructor))
   {
   }
 
@@ -54,7 +53,7 @@ struct PimpMe
 
   operator bool() const noexcept
   {
-    return get() != nullptr;
+    return destructor != nullptr;
   }
 
   typename std::add_lvalue_reference<T>::type operator*() const
@@ -73,14 +72,10 @@ struct PimpMeAlloc
 
   static_assert(sizeof(type) <= Impl::size, "Too small!!!");
 
-  constexpr static Impl pimp()
-  {
-    return Impl([](storage_type_ptr&& storage){ reinterpret_cast<ptr>(storage)->~type(); });
-  }
-
   template<typename... Args>
-  constexpr static ptr alloc(Impl& impl, Args&&... args)
+  static ptr alloc(Impl& impl, Args&&... args)
   {
+    impl.destructor = [](storage_type_ptr&& storage){ reinterpret_cast<ptr>(storage)->~type(); };
     return new(&(impl.storage)) typename Impl::type(std::forward<Args>(args)...);
   }
 
