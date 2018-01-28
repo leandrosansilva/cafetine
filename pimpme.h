@@ -16,6 +16,8 @@ struct PimpMe
   using storage_type_ptr = typename std::add_pointer<storage_type>::type;
   using destructor_type = typename std::add_pointer<void(storage_type_ptr&&)>::type;
 
+  static destructor_type default_destructor;
+
   storage_type storage;
   destructor_type destructor;
 
@@ -37,7 +39,9 @@ struct PimpMe
 
   ~PimpMe()
   {
-    destructor(&storage);
+    if (destructor) {
+      destructor(&storage);
+    }
   }
 
   ptr get() const noexcept
@@ -56,11 +60,15 @@ struct PimpMe
     return destructor != nullptr;
   }
 
-  typename std::add_lvalue_reference<T>::type operator*() const
+  typename std::add_lvalue_reference<T>::type operator*() const noexcept
   {
     return *get();
   }
 };
+
+template<typename T, std::size_t Size, std::size_t Align>
+typename PimpMe<T, Size, Align>::destructor_type PimpMe<T, Size, Align>::default_destructor
+  = [](storage_type_ptr&& storage){ reinterpret_cast<ptr>(storage)->~type(); };
 
 template<typename Impl>
 struct PimpMeAlloc
@@ -70,26 +78,23 @@ struct PimpMeAlloc
   using storage_type = typename Impl::storage_type;
   using storage_type_ptr = typename Impl::storage_type_ptr;
 
-  static_assert(sizeof(type) <= Impl::size, "Too small!!!");
+  static_assert(sizeof(type) <= Impl::size, "Storage space it too small for implementation");
 
   template<typename... Args>
   static ptr alloc(Impl& impl, Args&&... args)
   {
-    impl.destructor = [](storage_type_ptr&& storage){ reinterpret_cast<ptr>(storage)->~type(); };
+    impl.destructor = Impl::default_destructor;
     return new(&(impl.storage)) typename Impl::type(std::forward<Args>(args)...);
   }
 
   static Impl move(Impl& impl) noexcept
   {
-    // FIXME: remove copy&pasted code with a static member
-    const auto destructor = [](storage_type_ptr&& storage){ reinterpret_cast<ptr>(storage)->~type(); };
-
     auto storage = storage_type{};
 
     new(&(storage)) typename Impl::type(std::move(*impl.get()));
 
-    impl.destructor = [](storage_type_ptr&&){};
+    impl.destructor = nullptr;
 
-    return Impl{storage, destructor};
+    return Impl{storage, Impl::default_destructor};
   }
 };
