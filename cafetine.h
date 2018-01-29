@@ -16,11 +16,15 @@
  * as well, to bear the new size. All the classes that depend on the interface object
  * will need recompilation. 
  * 
- * If this is not a problem for you, maybe cafetine might suit you :-)
+ * If this is not a problem for you, cafetine might suit you :-)
  * 
  * It also makes the PIMPL implementation easier, taking care of the object lifetime,
  * so you don't need to delete it manually (ok, this is not a problem if you use a "smart pointer",
  * but anyways...).
+ * 
+ * Other requirements for the PIMPL'd object:
+ * - it must be a class (or struct)
+ * - it must be marked as final and not polymorphic
  * 
  * This is an example about how to use it:
  * 
@@ -154,6 +158,9 @@ struct Alloc
   using storage_type_ptr = typename Impl::storage_type_ptr;
 
   static_assert(sizeof(type) <= Impl::size, "Storage space it too small for implementation");
+  static_assert(std::is_final<type>::value, "Pimpl'd class must be final!");
+  static_assert(!std::is_polymorphic<type>::value, "Pimpl'd class cannot be polymorphic!");
+  static_assert(std::is_class<type>::value, "Pimpl'd class must be a... wait!");
 
   template<typename... Args>
   static ptr alloc(Impl& impl, Args&&... args)
