@@ -1,4 +1,4 @@
-= Cafetine: wannabe pimpl for the masses ==
+= Cafetine: wannabe pimpl for the masses =
 
 Seriously, you should write a README.
 
@@ -13,3 +13,7 @@ TODO:
 
 - Benchmark it, compare with other pimpl implementations and see how it behaves
   compared to them.
+
+- Implement copy operation
+
+- restrict more the implementation type (it cannot be polym
