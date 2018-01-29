@@ -170,16 +170,22 @@ struct Alloc
   }
 
   // TODO: somehow hook it into std::move so that the user class
-  // can just use the default move constructor
+  // can just use the default move constructor.
   static Impl move(Impl& impl) noexcept
   {
-    auto storage = storage_type{};
-
-    new(&storage) typename Impl::type(std::move(*impl));
-
     impl.destructor = nullptr;
-
-    return Impl{storage, Impl::default_destructor};
+    Impl moved;
+    moved.destructor = Impl::default_destructor;
+    new(&(moved.storage)) typename Impl::type(std::move(*impl));
+    return moved;
+  }
+  
+  static Impl copy(const Impl& impl)
+  {
+    Impl copied;
+    copied.destructor = Impl::default_destructor;
+    new(&(copied.storage)) typename Impl::type(*impl);
+    return copied;
   }
 };
 

@@ -6,11 +6,11 @@
 #include <assert.h>
 
 // Non-copyable but moveable, because of the unique_ptr
-struct Person::PersonImpl
+struct Person::PersonImpl final
 {
-  int _age;
-
-  std::unique_ptr<std::string> _u;
+  int16_t _age1;
+  std::shared_ptr<std::string> _u;
+  int16_t _age;
 
   const char* name() const
   {
@@ -22,13 +22,15 @@ struct Person::PersonImpl
     return _age;
   }
   
-  PersonImpl& operator=(PersonImpl&) = delete;
+  PersonImpl(const PersonImpl&) = default;
+  
+  PersonImpl& operator=(PersonImpl&) = default;
 
   PersonImpl(PersonImpl&&) = default;
 
   PersonImpl(const std::string& name, int age):
     _age(age),
-    _u(std::unique_ptr<std::string>(new std::string(name)))
+    _u(std::shared_ptr<std::string>(new std::string(name)))
   {
   }
 
@@ -38,8 +40,15 @@ struct Person::PersonImpl
   }
 };
 
+Person::Person(const Person& other):
+  impl(cafetine::Alloc<Impl>::copy(other.impl))
+{
+  std::cout << "Copied person\n";
+}
+
 Person::Person(const char* name, int age)
 {
+  std::cout << "Created person\n";
   assert(!impl);
   cafetine::Alloc<Impl>::alloc(impl, name, age);
   assert(impl);
@@ -48,6 +57,12 @@ Person::Person(const char* name, int age)
 Person::Person(Person&& other):
   impl(cafetine::Alloc<Impl>::move(other.impl))
 {
+  std::cout << "Moved person\n";
+}
+
+Person::~Person()
+{
+  std::cout << "Destroyed person\n";
 }
 
 const char* Person::name() const

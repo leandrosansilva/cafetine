@@ -8,10 +8,15 @@ int main(int, char**)
 
   {
     auto p = Person{"Leandro", 30};
-
+    
     std::cout << p.name() << '\n';
+    
+    {
+      const auto copyP = p;
+      std::cout << copyP.name() << '\n';
+    }
 
-    auto p1 = std::move(p);
+    const auto p1 = std::move(p);
     
     // p becomes invalid by the move
 
