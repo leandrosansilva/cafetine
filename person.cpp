@@ -6,11 +6,11 @@
 #include <assert.h>
 
 // Non-copyable but moveable, because of the unique_ptr
-struct Person::PersonImpl final
+template<>
+struct VersionedPerson<PersonVersionNumber>::PersonImpl final
 {
-  int16_t _age1;
-  std::shared_ptr<std::string> _u;
   int16_t _age;
+  std::shared_ptr<std::string> _u;
 
   const char* name() const
   {
@@ -21,9 +21,9 @@ struct Person::PersonImpl final
   {
     return _age;
   }
-  
+
   PersonImpl(const PersonImpl&) = default;
-  
+
   PersonImpl& operator=(PersonImpl&) = default;
 
   PersonImpl(PersonImpl&&) = default;
@@ -40,13 +40,15 @@ struct Person::PersonImpl final
   }
 };
 
-Person::Person(const Person& other):
+template<>
+VersionedPerson<PersonVersionNumber>::VersionedPerson(const VersionedPerson& other):
   impl(cafetine::Alloc<Impl>::copy(other.impl))
 {
   std::cout << "Copied person\n";
 }
 
-Person::Person(const char* name, int age)
+template<>
+VersionedPerson<PersonVersionNumber>::VersionedPerson(const char* name, int age)
 {
   std::cout << "Created person\n";
   assert(!impl);
@@ -54,23 +56,27 @@ Person::Person(const char* name, int age)
   assert(impl);
 }
 
-Person::Person(Person&& other):
+template<>
+VersionedPerson<PersonVersionNumber>::VersionedPerson(VersionedPerson&& other):
   impl(cafetine::Alloc<Impl>::move(other.impl))
 {
   std::cout << "Moved person\n";
 }
 
-Person::~Person()
+template<>
+VersionedPerson<PersonVersionNumber>::~VersionedPerson()
 {
   std::cout << "Destroyed person\n";
 }
 
-const char* Person::name() const
+template<>
+const char* VersionedPerson<PersonVersionNumber>::name() const
 {
   return impl->name();
 }
 
-int Person::age() const
+template<>
+int VersionedPerson<PersonVersionNumber>::age() const
 {
   return impl->age();
 }

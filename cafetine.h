@@ -83,7 +83,7 @@
 
 namespace cafetine {
 
-template<typename T, std::size_t Size, std::size_t Align>
+template<typename T, std::size_t Size, std::size_t Align, std::uint16_t Version>
 struct Pimpl
 {
   constexpr static std::size_t size = Size;
@@ -102,6 +102,7 @@ struct Pimpl
 
   Pimpl(const Pimpl&) = delete;
   Pimpl& operator=(const Pimpl&) = delete;
+  Pimpl& operator=(Pimpl&&) = delete;
 
   Pimpl(Pimpl&& other) = default;
 
@@ -145,8 +146,8 @@ struct Pimpl
   }
 };
 
-template<typename T, std::size_t Size, std::size_t Align>
-typename Pimpl<T, Size, Align>::destructor_type Pimpl<T, Size, Align>::default_destructor
+template<typename T, std::size_t Size, std::size_t Align, uint16_t Version>
+typename Pimpl<T, Size, Align, Version>::destructor_type Pimpl<T, Size, Align, Version>::default_destructor
   = [](storage_type_ptr&& storage){ reinterpret_cast<ptr>(storage)->~type(); };
 
 template<typename Impl>

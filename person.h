@@ -2,28 +2,33 @@
 
 #include "cafetine.h"
 
-struct Person
+constexpr std::uint16_t PersonVersionNumber = 1;
+
+template<std::uint16_t Version>
+struct VersionedPerson
 {
   struct PersonImpl;
 
-  // Allocate 16 bytes, 4-byte aligned in the Person Object to store
+  // Allocate 56 bytes, 4-byte aligned in the VersionedPerson Object to store
   // the implementation
-  using Impl = cafetine::Pimpl<PersonImpl, 56, alignof(std::uint32_t)>;
+  using Impl = cafetine::Pimpl<PersonImpl, 56, alignof(std::uint32_t), Version>;
 
   // impl looks like a pointer, but never does dynamic memory allocation
   Impl impl;
 
-  Person(const char* name, int age);
+  VersionedPerson(const char* name, int age);
   
-  Person(const Person&);
+  VersionedPerson(const VersionedPerson&);
   
-  Person& operator=(const Person&) = default;
+  VersionedPerson& operator=(const VersionedPerson&) = default;
 
-  Person(Person&&);
+  VersionedPerson(VersionedPerson&&);
   
-  ~Person();
+  ~VersionedPerson();
 
   const char* name() const;
 
   int age() const;
 };
+
+using Person = VersionedPerson<PersonVersionNumber>;
