@@ -6,7 +6,7 @@ int main(int, char**)
 {
   auto result = int{0};
 
-  {
+  for (auto i = 0; i < 1000; i++) {
     auto p = Person{"Leandro", 30};
     
     std::cout << p.name() << '\n';
@@ -22,8 +22,8 @@ int main(int, char**)
 
     std::cout << p1.name() << '\n';
 
-    result = p.age();
+    result += p1.age();
   }
 
-  return result;
+  return result % 128;
 }

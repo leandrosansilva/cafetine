@@ -4,6 +4,10 @@
 #include <iostream>
 #include <memory>
 #include <assert.h>
+#include <array>
+
+// To prevent the compiler of optimizing it
+extern "C" void do_something_special(const uint8_t*, std::size_t);
 
 // Non-copyable but moveable, because of the unique_ptr
 template<>
@@ -11,14 +15,18 @@ struct VersionedPerson<PersonVersionNumber>::PersonImpl final
 {
   int16_t _age;
   std::shared_ptr<std::string> _u;
-
+  
+  std::array<uint8_t, 2048> aBigMember;
+  
   const char* name() const
   {
+    do_something_special(aBigMember.data(), aBigMember.size());
     return _u->c_str();
   }
 
   int age() const
   {
+    do_something_special(aBigMember.data(), aBigMember.size());
     return _age;
   }
 
@@ -36,6 +44,7 @@ struct VersionedPerson<PersonVersionNumber>::PersonImpl final
 
   ~PersonImpl()
   {
+    do_something_special(aBigMember.data(), aBigMember.size());
     std::cout << "Deleted PersonImpl\n";
   }
 };
