@@ -38,8 +38,8 @@
  *   // You really don's need to define this type, but it makes your 
  *   // life easier in the implementation file.
  *   // This class will not compile if the space is not large enough 
- *   // for the pimpl'd object. 
- *   using Impl = cafetine::Pimpl<PrivateImpl, 56, 4>;
+ *   // for the pimpl'd object. 0 is tag for the binnary versioning of the object
+ *   using Impl = cafetine::Pimpl<PrivateImpl, 56, 4, 0>;
  * 
  *   // allocate the implementation object.
  *   // it has a pointer-like interface
@@ -71,6 +71,10 @@
  * 
  * Example::Example(Example&& other):
  *   impl(cafetine::Alloc<Impl>::move(other.impl))
+ * {
+ * }
+ * Example::Example(const Example& other):
+ *   impl(cafetine::Alloc<Impl>::copy(other.impl))
  * {
  * }
  * 
@@ -143,6 +147,15 @@ struct Pimpl
   typename std::add_lvalue_reference<T>::type operator*() const noexcept
   {
     return *get();
+  }
+
+  void reset() noexcept
+  {
+    if (destructor) {
+      destructor(&storage);
+    }
+
+    destructor = nullptr;
   }
 };
 

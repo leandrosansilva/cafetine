@@ -14,7 +14,7 @@ struct VersionedPerson
   using Impl = cafetine::Pimpl<PersonImpl, 56, alignof(std::uint32_t), Version>;
 
   // impl looks like a pointer, but never does dynamic memory allocation
-  Impl impl;
+  mutable Impl impl;
 
   VersionedPerson(const char* name, int age);
   

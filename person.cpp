@@ -54,6 +54,10 @@ VersionedPerson<PersonVersionNumber>::VersionedPerson(const char* name, int age)
   assert(!impl);
   cafetine::Alloc<Impl>::alloc(impl, name, age);
   assert(impl);
+  impl.reset();
+  assert(!impl);
+  cafetine::Alloc<Impl>::alloc(impl, name, age);
+  assert(impl);
 }
 
 template<>
